@@ -32,11 +32,12 @@ router.post('/posts/complete', isAuthenticated, async (req, res) => {
       }
       if (task) {
         try {
-          task.completed = 'yes'
+          await Post.findByIdAndUpdate(_id, { completed: 'yes' }, { useFindAndModify: false })
+          //task.completed = 'yes'
           await task.save()
           res.send('task completed')
         } catch (err) {
-          res.send('failed to complete task')
+          res.send(`failed to complete task: ${err}`)
         }
       } else {
         res.send('could not complete task')

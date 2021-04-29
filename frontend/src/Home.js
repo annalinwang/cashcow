@@ -7,20 +7,21 @@ import {
     useHistory
   } from "react-router-dom";
 import axios from 'axios'
+import Login from './Login'
 
 
 const Home = () => {
-    const [question, setQuestion] = useState('')
-    const [answer, setAnswer] = useState('')
+    
+    const [post, setPost] = useState('')
     const [author, setAuthor] = useState('')
     const [modalActive, setModalActive] = useState(false)
-    const [questionsList, setQuestionsList] = useState([])
+    const [postsList, setPostsList] = useState([])
     const history = useHistory()
 
 
     useEffect(() => {
       const intervalID = setInterval(() => {
-        getQuestions()
+        getPosts()
       }, 2000)
       const controller = new AbortController()
       controller.abort()
@@ -35,38 +36,36 @@ const Home = () => {
         setAuthor(String(response.data))
     })
     
-    const getQuestions = async () => {
+    const getPosts = async () => {
         await axios({
             method: 'get',
             url: '/api/posts',
           })
         .then(response => {
-            setQuestionsList(response.data)
+            setPostsList(response.data)
         });
     }
-
-
-    const addQuestion = async (questionText, author) => {
+    
+    const addPost = async (postText, sendTo) => {
         try {
-            await axios.post('/api/posts/add', { questionText, author })
+            await axios.post('/api/posts/add', { postText, author, sendTo })
             setModalActive(false)
         } catch (err) {
-            window.alert(`error occured while adding question: ${err.response.data}`)
+            window.alert(`error occured while adding post: ${err.response.data}`)
         }
       }
 
-    const answerQuestion = async (_id, answer, author) => {
+    const completePost = async (_id, author) => {
         try {
-            await axios.post('/api/posts/answer', { _id, answer, author })
-            setAnswer('')
+            await axios.post('/api/posts/complete', { _id, author })
         } catch (err) {
-            window.alert(`error occured while answering question: ${err.response.data}`)
+            window.alert(`error occured while completing post: ${err.response.data}`)
         }
     }
       
     const modalAppear = () => {
         setModalActive(true)
-        setQuestion('')
+        setPost('')
     }
 
     const goHome = () => {
@@ -83,73 +82,95 @@ const Home = () => {
       }
     }
 
+    if (author !== '') {
+        return (
+            <>
+            <div className="container">
+                <br></br>
+                <center><h1> <b>Roommate Task Organizer </b></h1>
+                <br></br>
+                Welcome {author}!
+                <br></br>
+                <br></br>
+                <button type="button" className="btn btn-primary" onClick={modalAppear}>Add new task</button>
+                <br></br>
+                <br></br>
+                <button type="button" className="btn btn-primary" onClick={logout}>Logout</button>
+                <br></br>
+                </center>
+            </div>
+
+            {modalActive
+                && (
+                <center>
+                <div className="card" style={{ width: '25rem' }}>
+                <center>
+                    <br></br>
+                    <h5>Add Task</h5>
+                    <input onChange={e => setPost(e.target.value)} placeholder="Write task here..." />
+                    <br />
+                    <button type="button" className="btn btn-primary" onClick={() => addPost(post, post)}>Submit Task</button>
+                    <button type="button" className="btn btn-warning" onClick={() => setModalActive(false)}>Cancel</button>
+                    <br></br>
+                    </center>
+                    <br></br>
+                </div>
+                </center>
+                )}
+            <div>
+                <br></br>
+                {
+                postsList.map(q => (
+                <center>
+                <div className="card" style={{ width: '18rem' }}>
+                    <center>
+                    <div className="post-title" style={{ size: '16pt', color: 'black', fontWeight: 'bold' }}>
+                    Task: {q.postText}
+                    </div>
+                    <div className="body">
+                    Author: {q.sendFrom}
+                    </div>
+                    <div className="assigned to">
+                    Assigned to: {q.sendTo}
+                    </div>
+                    <div className="completed">
+                    Completed: {q.completed}
+                    </div>
+                <button type="button" className="btn btn-primary" onClick={() => completePost(q._id, author)}>
+                    Complete Task
+                </button>
+                    </center>
+                </div>
+                <br></br>
+                </center>
+                ))
+            }
+            </div>
+            </>
+        )    
+    }
+
     return (
         <>
-        <div className="container">
-            <br></br>
-            <center><h1> <b>Campuswire Lite </b></h1>
-            <br></br>
-            Welcome {author}!
-            <br></br>
-            <br></br>
-            <button type="button" className="btn btn-primary" onClick={modalAppear}>Add new question</button>
-            <br></br>
-            <br></br>
-            <button type="button" className="btn btn-primary" onClick={logout}>Logout</button>
-            <br></br>
-            </center>
-        </div>
-
-        {modalActive
-            && (
-            <center>
-            <div className="card" style={{ width: '25rem' }}>
-            <center>
+            <div className="container">
                 <br></br>
-                <h5>Add Question</h5>
-                <input onChange={e => setQuestion(e.target.value)} placeholder="Write question here..." />
-                <br />
-                <button type="button" className="btn btn-primary" onClick={() => addQuestion(question, author)}>Submit Question</button>
-                <button type="button" className="btn btn-warning" onClick={() => setModalActive(false)}>Cancel</button>
+                <center><h1> <b>Roommate Task Organizer </b></h1>
                 <br></br>
-                </center>
+                Welcome Roomie! <Link to="/login">Log in </Link>to view tasks.
                 <br></br>
-            </div>
-            </center>
-            )}
-        <div>
-            <br></br>
-            {
-            questionsList.map(q => (
-            <center>
-            <div className="card" style={{ width: '18rem' }}>
-                <center>
-                <div className="post-title" style={{ size: '16pt', color: 'black', fontWeight: 'bold' }}>
-                Question: {q.questionText}
-                </div>
-                <div className="body">
-                Author: {q.author}
-                </div>
-                <div className="answer">
-                Answer: {q.answer}
-                </div>
-            <input
-                onChange={e => setAnswer(e.target.value)}
-                placeholder="Write your answer here..."
-            />
-            <br></br>
-            <button type="button" className="btn btn-primary" onClick={() => answerQuestion(q._id, answer, author)}>
-                Submit Answer
-            </button>
+                <br></br>
+                
+                <Switch>
+                <Route path="/login">
+                    <Login />
+                </Route>
+                </Switch>
                 </center>
             </div>
-            <br></br>
-            </center>
-            ))
-        }
-        </div>
         </>
-    )    
+      )
+
+
   }
 
 export default Home
