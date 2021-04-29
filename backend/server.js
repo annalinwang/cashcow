@@ -27,11 +27,9 @@ app.use(
 app.use(express.static('dist'))
 app.use(express.json())
 
-/** 
 app.get('/', (req, res) => {
   res.send(`server route`)
 })
-*/
 
 app.use('/api', PostRouter)
 app.use('/account', AccountRouter)
@@ -50,11 +48,10 @@ app.use('/account', AccountRouter)
 // Integration
 app.get('/favicon.ico', (req, res) => res.status(404).send())
 
-/** 
+
 app.get('*', (_, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'))
 })
-*/
 
 app.listen(3000, () => {
   console.log('mongoDB is connected')

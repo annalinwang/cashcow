@@ -4,6 +4,8 @@ const User = require('../models/user')
 const { isAuthenticated } = require('../middlewares/isAuthenticated')
 const router = express.Router()
 
+
+
 router.post('/', (req, res) => {
   res.send(req.session.username)
 })

@@ -35745,8 +35745,298 @@ var Signup = function Signup() {
 var _default = Signup;
 exports.default = _default;
 },{"react":"../node_modules/react/index.js","axios":"../node_modules/axios/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./Login":"src/Login.js"}],"src/Home.js":[function(require,module,exports) {
+"use strict";
 
-},{}],"src/App.js":[function(require,module,exports) {
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+var _reactRouterDom = require("react-router-dom");
+
+var _axios = _interopRequireDefault(require("axios"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr && (typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]); if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+var Home = function Home() {
+  var _useState = (0, _react.useState)(''),
+      _useState2 = _slicedToArray(_useState, 2),
+      question = _useState2[0],
+      setQuestion = _useState2[1];
+
+  var _useState3 = (0, _react.useState)(''),
+      _useState4 = _slicedToArray(_useState3, 2),
+      answer = _useState4[0],
+      setAnswer = _useState4[1];
+
+  var _useState5 = (0, _react.useState)(''),
+      _useState6 = _slicedToArray(_useState5, 2),
+      author = _useState6[0],
+      setAuthor = _useState6[1];
+
+  var _useState7 = (0, _react.useState)(false),
+      _useState8 = _slicedToArray(_useState7, 2),
+      modalActive = _useState8[0],
+      setModalActive = _useState8[1];
+
+  var _useState9 = (0, _react.useState)([]),
+      _useState10 = _slicedToArray(_useState9, 2),
+      questionsList = _useState10[0],
+      setQuestionsList = _useState10[1];
+
+  var history = (0, _reactRouterDom.useHistory)();
+  (0, _react.useEffect)(function () {
+    var intervalID = setInterval(function () {
+      getQuestions();
+    }, 2000);
+    var controller = new AbortController();
+    controller.abort(); // return a clean-up function so that the repetition can be stopped
+    // when the component is unmounted
+
+    return function () {
+      return clearInterval(intervalID);
+    };
+  }, []);
+  (0, _axios.default)({
+    method: 'post',
+    url: '/account/'
+  }).then(function (response) {
+    setAuthor(String(response.data));
+  });
+
+  var getQuestions = /*#__PURE__*/function () {
+    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              _context.next = 2;
+              return (0, _axios.default)({
+                method: 'get',
+                url: '/api/posts'
+              }).then(function (response) {
+                setQuestionsList(response.data);
+              });
+
+            case 2:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, _callee);
+    }));
+
+    return function getQuestions() {
+      return _ref.apply(this, arguments);
+    };
+  }();
+
+  var addQuestion = /*#__PURE__*/function () {
+    var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(questionText, author) {
+      return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              _context2.prev = 0;
+              _context2.next = 3;
+              return _axios.default.post('/api/posts/add', {
+                questionText: questionText,
+                author: author
+              });
+
+            case 3:
+              setModalActive(false);
+              _context2.next = 9;
+              break;
+
+            case 6:
+              _context2.prev = 6;
+              _context2.t0 = _context2["catch"](0);
+              window.alert("error occured while adding question: ".concat(_context2.t0.response.data));
+
+            case 9:
+            case "end":
+              return _context2.stop();
+          }
+        }
+      }, _callee2, null, [[0, 6]]);
+    }));
+
+    return function addQuestion(_x, _x2) {
+      return _ref2.apply(this, arguments);
+    };
+  }();
+
+  var answerQuestion = /*#__PURE__*/function () {
+    var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(_id, answer, author) {
+      return regeneratorRuntime.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              _context3.prev = 0;
+              _context3.next = 3;
+              return _axios.default.post('/api/posts/answer', {
+                _id: _id,
+                answer: answer,
+                author: author
+              });
+
+            case 3:
+              setAnswer('');
+              _context3.next = 9;
+              break;
+
+            case 6:
+              _context3.prev = 6;
+              _context3.t0 = _context3["catch"](0);
+              window.alert("error occured while answering question: ".concat(_context3.t0.response.data));
+
+            case 9:
+            case "end":
+              return _context3.stop();
+          }
+        }
+      }, _callee3, null, [[0, 6]]);
+    }));
+
+    return function answerQuestion(_x3, _x4, _x5) {
+      return _ref3.apply(this, arguments);
+    };
+  }();
+
+  var modalAppear = function modalAppear() {
+    setModalActive(true);
+    setQuestion('');
+  };
+
+  var goHome = function goHome() {
+    history.push('/');
+  };
+
+  var logout = /*#__PURE__*/function () {
+    var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
+      return regeneratorRuntime.wrap(function _callee4$(_context4) {
+        while (1) {
+          switch (_context4.prev = _context4.next) {
+            case 0:
+              _context4.prev = 0;
+              _context4.next = 3;
+              return _axios.default.post('/account/logout', {
+                username: author
+              });
+
+            case 3:
+              goHome();
+              _context4.next = 9;
+              break;
+
+            case 6:
+              _context4.prev = 6;
+              _context4.t0 = _context4["catch"](0);
+              window.alert("error occured while logging out: ".concat(_context4.t0.response.data));
+
+            case 9:
+            case "end":
+              return _context4.stop();
+          }
+        }
+      }, _callee4, null, [[0, 6]]);
+    }));
+
+    return function logout() {
+      return _ref4.apply(this, arguments);
+    };
+  }();
+
+  return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement("div", {
+    className: "container"
+  }, /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("h1", null, " ", /*#__PURE__*/_react.default.createElement("b", null, "Campuswire Lite ")), /*#__PURE__*/_react.default.createElement("br", null), "Welcome ", author, "!", /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("button", {
+    type: "button",
+    className: "btn btn-primary",
+    onClick: modalAppear
+  }, "Add new question"), /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("button", {
+    type: "button",
+    className: "btn btn-primary",
+    onClick: logout
+  }, "Logout"), /*#__PURE__*/_react.default.createElement("br", null))), modalActive && /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("div", {
+    className: "card",
+    style: {
+      width: '25rem'
+    }
+  }, /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("h5", null, "Add Question"), /*#__PURE__*/_react.default.createElement("input", {
+    onChange: function onChange(e) {
+      return setQuestion(e.target.value);
+    },
+    placeholder: "Write question here..."
+  }), /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("button", {
+    type: "button",
+    className: "btn btn-primary",
+    onClick: function onClick() {
+      return addQuestion(question, author);
+    }
+  }, "Submit Question"), /*#__PURE__*/_react.default.createElement("button", {
+    type: "button",
+    className: "btn btn-warning",
+    onClick: function onClick() {
+      return setModalActive(false);
+    }
+  }, "Cancel"), /*#__PURE__*/_react.default.createElement("br", null)), /*#__PURE__*/_react.default.createElement("br", null))), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("br", null), questionsList.map(function (q) {
+    return /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("div", {
+      className: "card",
+      style: {
+        width: '18rem'
+      }
+    }, /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("div", {
+      className: "post-title",
+      style: {
+        size: '16pt',
+        color: 'black',
+        fontWeight: 'bold'
+      }
+    }, "Question: ", q.questionText), /*#__PURE__*/_react.default.createElement("div", {
+      className: "body"
+    }, "Author: ", q.author), /*#__PURE__*/_react.default.createElement("div", {
+      className: "answer"
+    }, "Answer: ", q.answer), /*#__PURE__*/_react.default.createElement("input", {
+      onChange: function onChange(e) {
+        return setAnswer(e.target.value);
+      },
+      placeholder: "Write your answer here..."
+    }), /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("button", {
+      type: "button",
+      className: "btn btn-primary",
+      onClick: function onClick() {
+        return answerQuestion(q._id, answer, author);
+      }
+    }, "Submit Answer"))), /*#__PURE__*/_react.default.createElement("br", null));
+  })));
+};
+
+var _default = Home;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","axios":"../node_modules/axios/index.js"}],"src/App.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -35773,7 +36063,7 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 var App = function App() {
-  return /*#__PURE__*/_react.default.createElement(_reactRouterDom.BrowserRouter, null, /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("hr", null), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Switch, null, /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
+  return /*#__PURE__*/_react.default.createElement(_reactRouterDom.BrowserRouter, null, /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement(_reactRouterDom.Switch, null, /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
     exact: true,
     path: "/"
   }, /*#__PURE__*/_react.default.createElement(_Home.default, null)), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
@@ -35825,7 +36115,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58502" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57614" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
