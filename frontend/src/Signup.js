@@ -33,7 +33,7 @@ const Signup = () => {
         <div>
             <div className="container">
                 <br></br>
-                <center><h1> <b>Campuswire Lite </b></h1>
+                <center><h1> <b>CashCow </b></h1>
                 <div className="card" style={{ width: '20rem' }}>
                     <div class="card-body">
                         <div className="post-title" style={{ size: '30pt', color: 'black', fontWeight: 'bold' }}>

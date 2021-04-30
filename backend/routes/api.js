@@ -16,8 +16,8 @@ router.get('/posts', (req, res) => {
 
 router.post('/posts/add', isAuthenticated, async (req, res) => {
     try {
-        const { task, sendFrom, sendTo } = req.body
-        await Post.create({ task, sendFrom, sendTo, completed: 'no' })
+        const { task, amount, sendFrom, sendTo } = req.body
+        await Post.create({ task, amount, sendFrom, sendTo, completed: 'no' })
         res.send('post created succesfully')
       } catch (err) {
         res.send(`failure to create the post. err: ${err}`)

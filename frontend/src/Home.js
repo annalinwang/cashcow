@@ -8,14 +8,18 @@ import {
   } from "react-router-dom";
 import axios from 'axios'
 import Login from './Login'
+import { Filters } from '../actions'
 
 
 const Home = () => {
     
     const [post, setPost] = useState('')
+    const [money, setMoney] = useState('')
+    const [sendTo, setSendTo] = useState('')
     const [author, setAuthor] = useState('')
     const [modalActive, setModalActive] = useState(false)
     const [postsList, setPostsList] = useState([])
+    const [filterForMe, setFilterForMe] = useState(Filters.SHOW_ALL)
     const history = useHistory()
 
 
@@ -46,9 +50,9 @@ const Home = () => {
         });
     }
     
-    const addPost = async (postText, sendTo) => {
+    const addPost = async (task, amount, sendFrom, sendTo) => {
         try {
-            await axios.post('/api/posts/add', { postText, author, sendTo })
+            await axios.post('/api/posts/add', { task, amount, sendFrom, sendTo })
             setModalActive(false)
         } catch (err) {
             window.alert(`error occured while adding post: ${err.response.data}`)
@@ -82,20 +86,41 @@ const Home = () => {
       }
     }
 
+    const getFilteredPosts = (posts, filter) => {
+        switch (filter) {
+          case Filters.SHOW_ALL:
+            return posts
+          case Filters.SHOW_COMPLETED:
+            return posts.filter(p => p.completed === 'yes' && p.sendTo == author)
+          case Filters.SHOW_INCOMPLETE:
+            return posts.filter(p => p.completed === 'no' && p.sendTo == author)
+          case Filters.SHOW_SENT:
+            return posts.filter(p => p.sendFrom == author)
+          default:
+            throw new Error(`Unknown filter: ${filter}`)
+        }
+      }
+    
+      const FilterButton = ({ active, children, onClick }) => (
+        <button type="button" className="btn btn-light"
+          onClick={onClick}
+          disabled={active}
+          style={{ marginLeft: '5px' }}>
+          {children}
+        </button>
+      )
+
     if (author !== '') {
         return (
             <>
             <div className="container">
                 <br></br>
-                <center><h1> <b>Roommate Task Organizer </b></h1>
+                <center><h1> <b>CashCow </b></h1>
+                Welcome <b>{author}</b>!
                 <br></br>
-                Welcome {author}!
+                <button type="button" className="btn btn-link" onClick={logout}>Logout</button>
                 <br></br>
-                <br></br>
-                <button type="button" className="btn btn-primary" onClick={modalAppear}>Add new task</button>
-                <br></br>
-                <br></br>
-                <button type="button" className="btn btn-primary" onClick={logout}>Logout</button>
+                <button type="button" className="btn btn-info" onClick={modalAppear}>Make Request</button>
                 <br></br>
                 </center>
             </div>
@@ -103,59 +128,106 @@ const Home = () => {
             {modalActive
                 && (
                 <center>
-                <div className="card" style={{ width: '25rem' }}>
-                <center>
-                    <br></br>
-                    <h5>Add Task</h5>
-                    <input onChange={e => setPost(e.target.value)} placeholder="Write task here..." />
-                    <br />
-                    <button type="button" className="btn btn-primary" onClick={() => addPost(post, post)}>Submit Task</button>
-                    <button type="button" className="btn btn-warning" onClick={() => setModalActive(false)}>Cancel</button>
-                    <br></br>
-                    </center>
-                    <br></br>
-                </div>
+                    <div className="container">
+                        <br></br>
+                        <center>
+                        <div className="card" style={{ width: '15rem' }}> 
+                            <div class="card-body">
+                                <div className="post-title" style={{ size: '30pt', color: 'black', fontWeight: 'bold' }}>
+                                    Request
+                                </div>
+                                <input className="form-control" onChange={e => setSendTo(e.target.value)} placeholder="Username"></input>
+                                
+                                <input className="form-control" onChange={e => setPost(e.target.value)} placeholder="What's it for?"></input>
+                                <input className="form-control" onChange={e => setMoney(e.target.value)} placeholder="$0"></input>
+                                <br></br>
+                                <button type="button" style={{ marginLeft: '5px'}} className="btn btn-info" 
+                                    disabled={post.trim().length === 0 || money.trim().length === 0 || sendTo.trim().length === 0 || isNaN(money.trim())} 
+                                    onClick={() => addPost(post, money, author, sendTo)}>Submit</button>
+                                <button type="button" style={{ marginLeft: '5px'}} className="btn btn-warning" onClick={() => setModalActive(false)}>Cancel</button>
+                                <br/>
+                            </div>
+                        </div>
+                        </center>   
+                    </div>
                 </center>
-                )}
+            )}
+
+            <div>
+                <br></br>
+                <center>
+                    <b>Payments Feed</b>
+                    <div className="filters">
+                        <FilterButton filter={Filters.SHOW_ALL} onClick={() => setFilterForMe(Filters.SHOW_ALL)}>
+                        All
+                        </FilterButton>
+                        <FilterButton filter={Filters.SHOW_INCOMPLETE} onClick={() => setFilterForMe(Filters.SHOW_INCOMPLETE)}>
+                        Incomplete
+                        </FilterButton>
+                        <FilterButton filter={Filters.SHOW_COMPLETED} onClick={() => setFilterForMe(Filters.SHOW_COMPLETED)}>
+                        Completed
+                        </FilterButton>
+                        <FilterButton filter={Filters.SHOW_SENT} onClick={() => setFilterForMe(Filters.SHOW_SENT)}>
+                        Sent
+                        </FilterButton>
+                    </div>
+                </center>
+            </div>
+
             <div>
                 <br></br>
                 {
-                postsList.map(q => (
-                <center>
-                <div className="card" style={{ width: '18rem' }}>
+                (getFilteredPosts(postsList, filterForMe)).map(q => (
                     <center>
-                    <div className="post-title" style={{ size: '16pt', color: 'black', fontWeight: 'bold' }}>
-                    Task: {q.postText}
-                    </div>
-                    <div className="body">
-                    Author: {q.sendFrom}
-                    </div>
-                    <div className="assigned to">
-                    Assigned to: {q.sendTo}
-                    </div>
-                    <div className="completed">
-                    Completed: {q.completed}
-                    </div>
-                <button type="button" className="btn btn-primary" onClick={() => completePost(q._id, author)}>
-                    Complete Task
-                </button>
+                        {q.completed === 'yes' && (
+                            <div className="card border-success mb-3" style={{ width: '18rem'}}>
+                                <center>
+                                <br></br>
+                                <b>{q.sendTo}</b> paid <b>{q.sendFrom}</b>
+                                <div className="body">
+                                <b>${q.amount}</b>: {q.task}
+                                </div>
+                                <br></br>
+                                </center> 
+                             </div>
+                        )}
+                        {q.completed === 'no' && (
+                             <div className="card border-danger mb-3" style={{ width: '18rem'}}>
+                                <center>
+                                <br></br>
+                                <b>{q.sendFrom}</b> requested <b>{q.sendTo}</b>
+                                <div className="body">
+                                <b>${q.amount}</b>: {q.task}
+                                </div>
+                                {q.sendTo === author && (
+                                    <div>
+                                        <button type="button" className="btn btn-link" onClick={() => completePost(q._id, author)}>
+                                        Pay
+                                        </button>
+                                        <br></br>
+                                    </div>
+                                )}
+                                <br></br>
+                                </center>  
+                             </div>
+                        )}
+
+                        
                     </center>
-                </div>
-                <br></br>
-                </center>
-                ))
-            }
+                    ))
+                }
             </div>
             </>
         )    
     }
 
+    
+
     return (
         <>
             <div className="container">
                 <br></br>
-                <center><h1> <b>Roommate Task Organizer </b></h1>
-                <br></br>
+                <center><h1> <b>CashCow</b></h1>
                 Welcome Roomie! <Link to="/login">Log in </Link>to view tasks.
                 <br></br>
                 <br></br>

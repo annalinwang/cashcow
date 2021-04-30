@@ -35514,7 +35514,7 @@ const Login = () => {
 
   return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("div", {
     className: "container"
-  }, /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("h1", null, " ", /*#__PURE__*/_react.default.createElement("b", null, "Campuswire Lite ")), /*#__PURE__*/_react.default.createElement("div", {
+  }, /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("h1", null, " ", /*#__PURE__*/_react.default.createElement("b", null, "CashCow ")), /*#__PURE__*/_react.default.createElement("div", {
     className: "card",
     style: {
       width: '20rem'
@@ -35599,7 +35599,7 @@ const Signup = () => {
 
   return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("div", {
     className: "container"
-  }, /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("h1", null, " ", /*#__PURE__*/_react.default.createElement("b", null, "Campuswire Lite ")), /*#__PURE__*/_react.default.createElement("div", {
+  }, /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("h1", null, " ", /*#__PURE__*/_react.default.createElement("b", null, "CashCow ")), /*#__PURE__*/_react.default.createElement("div", {
     className: "card",
     style: {
       width: '20rem'
@@ -35636,7 +35636,28 @@ const Signup = () => {
 
 var _default = Signup;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","axios":"../node_modules/axios/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./Login":"src/Login.js"}],"src/Home.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","axios":"../node_modules/axios/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./Login":"src/Login.js"}],"actions/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Filters = exports.setFilter = void 0;
+
+const setFilter = filter => ({
+  type: 'SET_FILTER',
+  filter
+});
+
+exports.setFilter = setFilter;
+const Filters = {
+  SHOW_ALL: 'SHOW_ALL',
+  SHOW_COMPLETED: 'SHOW_COMPLETED',
+  SHOW_INCOMPLETE: 'SHOW_INCOMPLETE',
+  SHOW_SENT: 'SHOW_SENT'
+};
+exports.Filters = Filters;
+},{}],"src/Home.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -35652,6 +35673,8 @@ var _axios = _interopRequireDefault(require("axios"));
 
 var _Login = _interopRequireDefault(require("./Login"));
 
+var _actions = require("../actions");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
@@ -35660,9 +35683,12 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 const Home = () => {
   const [post, setPost] = (0, _react.useState)('');
+  const [money, setMoney] = (0, _react.useState)('');
+  const [sendTo, setSendTo] = (0, _react.useState)('');
   const [author, setAuthor] = (0, _react.useState)('');
   const [modalActive, setModalActive] = (0, _react.useState)(false);
   const [postsList, setPostsList] = (0, _react.useState)([]);
+  const [filterForMe, setFilterForMe] = (0, _react.useState)(_actions.Filters.SHOW_ALL);
   const history = (0, _reactRouterDom.useHistory)();
   (0, _react.useEffect)(() => {
     const intervalID = setInterval(() => {
@@ -35690,11 +35716,12 @@ const Home = () => {
     });
   };
 
-  const addPost = async (postText, sendTo) => {
+  const addPost = async (task, amount, sendFrom, sendTo) => {
     try {
       await _axios.default.post('/api/posts/add', {
-        postText,
-        author,
+        task,
+        amount,
+        sendFrom,
         sendTo
       });
       setModalActive(false);
@@ -35734,61 +35761,131 @@ const Home = () => {
     }
   };
 
+  const getFilteredPosts = (posts, filter) => {
+    switch (filter) {
+      case _actions.Filters.SHOW_ALL:
+        return posts;
+
+      case _actions.Filters.SHOW_COMPLETED:
+        return posts.filter(p => p.completed === 'yes' && p.sendTo == author);
+
+      case _actions.Filters.SHOW_INCOMPLETE:
+        return posts.filter(p => p.completed === 'no' && p.sendTo == author);
+
+      case _actions.Filters.SHOW_SENT:
+        return posts.filter(p => p.sendFrom == author);
+
+      default:
+        throw new Error(`Unknown filter: ${filter}`);
+    }
+  };
+
+  const FilterButton = ({
+    active,
+    children,
+    onClick
+  }) => /*#__PURE__*/_react.default.createElement("button", {
+    type: "button",
+    className: "btn btn-light",
+    onClick: onClick,
+    disabled: active,
+    style: {
+      marginLeft: '5px'
+    }
+  }, children);
+
   if (author !== '') {
     return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement("div", {
       className: "container"
-    }, /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("h1", null, " ", /*#__PURE__*/_react.default.createElement("b", null, "Roommate Task Organizer ")), /*#__PURE__*/_react.default.createElement("br", null), "Welcome ", author, "!", /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("button", {
+    }, /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("h1", null, " ", /*#__PURE__*/_react.default.createElement("b", null, "CashCow ")), "Welcome ", /*#__PURE__*/_react.default.createElement("b", null, author), "!", /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("button", {
       type: "button",
-      className: "btn btn-primary",
-      onClick: modalAppear
-    }, "Add new task"), /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("button", {
-      type: "button",
-      className: "btn btn-primary",
+      className: "btn btn-link",
       onClick: logout
-    }, "Logout"), /*#__PURE__*/_react.default.createElement("br", null))), modalActive && /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("div", {
+    }, "Logout"), /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("button", {
+      type: "button",
+      className: "btn btn-info",
+      onClick: modalAppear
+    }, "Make Request"), /*#__PURE__*/_react.default.createElement("br", null))), modalActive && /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("div", {
+      className: "container"
+    }, /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("div", {
       className: "card",
       style: {
-        width: '25rem'
+        width: '15rem'
       }
-    }, /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("h5", null, "Add Task"), /*#__PURE__*/_react.default.createElement("input", {
-      onChange: e => setPost(e.target.value),
-      placeholder: "Write task here..."
-    }), /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("button", {
-      type: "button",
-      className: "btn btn-primary",
-      onClick: () => addPost(post, post)
-    }, "Submit Task"), /*#__PURE__*/_react.default.createElement("button", {
-      type: "button",
-      className: "btn btn-warning",
-      onClick: () => setModalActive(false)
-    }, "Cancel"), /*#__PURE__*/_react.default.createElement("br", null)), /*#__PURE__*/_react.default.createElement("br", null))), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("br", null), postsList.map(q => /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("div", {
-      className: "card",
-      style: {
-        width: '18rem'
-      }
-    }, /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("div", {
+    }, /*#__PURE__*/_react.default.createElement("div", {
+      class: "card-body"
+    }, /*#__PURE__*/_react.default.createElement("div", {
       className: "post-title",
       style: {
-        size: '16pt',
+        size: '30pt',
         color: 'black',
         fontWeight: 'bold'
       }
-    }, "Task: ", q.postText), /*#__PURE__*/_react.default.createElement("div", {
-      className: "body"
-    }, "Author: ", q.sendFrom), /*#__PURE__*/_react.default.createElement("div", {
-      className: "assigned to"
-    }, "Assigned to: ", q.sendTo), /*#__PURE__*/_react.default.createElement("div", {
-      className: "completed"
-    }, "Completed: ", q.completed), /*#__PURE__*/_react.default.createElement("button", {
+    }, "Request"), /*#__PURE__*/_react.default.createElement("input", {
+      className: "form-control",
+      onChange: e => setSendTo(e.target.value),
+      placeholder: "Username"
+    }), /*#__PURE__*/_react.default.createElement("input", {
+      className: "form-control",
+      onChange: e => setPost(e.target.value),
+      placeholder: "What's it for?"
+    }), /*#__PURE__*/_react.default.createElement("input", {
+      className: "form-control",
+      onChange: e => setMoney(e.target.value),
+      placeholder: "$0"
+    }), /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("button", {
       type: "button",
-      className: "btn btn-primary",
+      style: {
+        marginLeft: '5px'
+      },
+      className: "btn btn-info",
+      disabled: post.trim().length === 0 || money.trim().length === 0 || sendTo.trim().length === 0 || isNaN(money.trim()),
+      onClick: () => addPost(post, money, author, sendTo)
+    }, "Submit"), /*#__PURE__*/_react.default.createElement("button", {
+      type: "button",
+      style: {
+        marginLeft: '5px'
+      },
+      className: "btn btn-warning",
+      onClick: () => setModalActive(false)
+    }, "Cancel"), /*#__PURE__*/_react.default.createElement("br", null)))))), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("b", null, "Payments Feed"), /*#__PURE__*/_react.default.createElement("div", {
+      className: "filters"
+    }, /*#__PURE__*/_react.default.createElement(FilterButton, {
+      filter: _actions.Filters.SHOW_ALL,
+      onClick: () => setFilterForMe(_actions.Filters.SHOW_ALL)
+    }, "All"), /*#__PURE__*/_react.default.createElement(FilterButton, {
+      filter: _actions.Filters.SHOW_INCOMPLETE,
+      onClick: () => setFilterForMe(_actions.Filters.SHOW_INCOMPLETE)
+    }, "Incomplete"), /*#__PURE__*/_react.default.createElement(FilterButton, {
+      filter: _actions.Filters.SHOW_COMPLETED,
+      onClick: () => setFilterForMe(_actions.Filters.SHOW_COMPLETED)
+    }, "Completed"), /*#__PURE__*/_react.default.createElement(FilterButton, {
+      filter: _actions.Filters.SHOW_SENT,
+      onClick: () => setFilterForMe(_actions.Filters.SHOW_SENT)
+    }, "Sent")))), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("br", null), getFilteredPosts(postsList, filterForMe).map(q => /*#__PURE__*/_react.default.createElement("center", null, q.completed === 'yes' && /*#__PURE__*/_react.default.createElement("div", {
+      className: "card border-success mb-3",
+      style: {
+        width: '18rem'
+      }
+    }, /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("b", null, q.sendTo), " paid ", /*#__PURE__*/_react.default.createElement("b", null, q.sendFrom), /*#__PURE__*/_react.default.createElement("div", {
+      className: "body"
+    }, /*#__PURE__*/_react.default.createElement("b", null, "$", q.amount), ": ", q.task), /*#__PURE__*/_react.default.createElement("br", null))), q.completed === 'no' && /*#__PURE__*/_react.default.createElement("div", {
+      className: "card border-danger mb-3",
+      style: {
+        width: '18rem'
+      }
+    }, /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("b", null, q.sendFrom), " requested ", /*#__PURE__*/_react.default.createElement("b", null, q.sendTo), /*#__PURE__*/_react.default.createElement("div", {
+      className: "body"
+    }, /*#__PURE__*/_react.default.createElement("b", null, "$", q.amount), ": ", q.task), q.sendTo === author && /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("button", {
+      type: "button",
+      className: "btn btn-link",
       onClick: () => completePost(q._id, author)
-    }, "Complete Task"))), /*#__PURE__*/_react.default.createElement("br", null)))));
+    }, "Pay"), /*#__PURE__*/_react.default.createElement("br", null)), /*#__PURE__*/_react.default.createElement("br", null)))))));
   }
 
   return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement("div", {
     className: "container"
-  }, /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("h1", null, " ", /*#__PURE__*/_react.default.createElement("b", null, "Roommate Task Organizer ")), /*#__PURE__*/_react.default.createElement("br", null), "Welcome Roomie! ", /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
+  }, /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("h1", null, " ", /*#__PURE__*/_react.default.createElement("b", null, "CashCow")), "Welcome Roomie! ", /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
     to: "/login"
   }, "Log in "), "to view tasks.", /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Switch, null, /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
     path: "/login"
@@ -35797,7 +35894,7 @@ const Home = () => {
 
 var _default = Home;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","axios":"../node_modules/axios/index.js","./Login":"src/Login.js"}],"src/App.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","axios":"../node_modules/axios/index.js","./Login":"src/Login.js","../actions":"actions/index.js"}],"src/App.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -35876,7 +35973,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60658" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55967" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
