@@ -1,5 +1,6 @@
 # cashcow
-payments tracker app using react, redux, express, passport
+Payments tracker app using express, react, redux, MongoDB, passport
+
 
 ## Quick start
 1. Clone this repo using `git clone https://github.com/annalinwang/cashcow.git`
