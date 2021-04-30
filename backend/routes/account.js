@@ -43,25 +43,18 @@ router.post('/login', (req, res, next) => {
     } else {
       return next(new Error('user does not exist'))
     }
+    passport.authenticate('local', (err, user) => {
+      if (err) {
+        console.log(err)
+        next(err)
+      } else {
+        req.session = user.username
+        req.session = user.password
+        res.send('logged in')
+      }
+    })
   })
 })
-
-//tried passport
-/**
-router.post('/login', (req, res, next) => {
-  passport.authenticate('local', (err, user) => {
-    if (err) {
-      console.log(err)
-      next(err)
-    } else {
-      console.log('asdf')
-      req.session = user.username
-      req.session = user.password
-      res.send('logged in')
-    }
-  })
-})
- */
 
 router.post('/logout', (req, res) => {
     const user = req.session.username

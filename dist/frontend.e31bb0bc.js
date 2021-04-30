@@ -35909,7 +35909,7 @@ const Home = () => {
       type: "button",
       className: "btn btn-link",
       onClick: () => completePost(q._id, author)
-    }, "Pay"), /*#__PURE__*/_react.default.createElement("br", null)), /*#__PURE__*/_react.default.createElement("br", null)))))));
+    }, "Complete"), /*#__PURE__*/_react.default.createElement("br", null)), /*#__PURE__*/_react.default.createElement("br", null)))))));
   }
 
   return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement("div", {
@@ -36018,7 +36018,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60085" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50081" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

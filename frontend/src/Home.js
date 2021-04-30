@@ -231,7 +231,7 @@ const Home = () => {
                                 {q.sendTo === author && (
                                     <div>
                                         <button type="button" className="btn btn-link" onClick={() => completePost(q._id, author)}>
-                                        Pay
+                                        Complete
                                         </button>
                                         <br></br>
                                     </div>
