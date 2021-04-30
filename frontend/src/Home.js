@@ -18,7 +18,9 @@ const Home = () => {
     const [sendTo, setSendTo] = useState('')
     const [author, setAuthor] = useState('')
     const [modalActive, setModalActive] = useState(false)
+    const [modalUserActive, setModalUserActive] = useState(false)
     const [postsList, setPostsList] = useState([])
+    const [users, setUsers] = useState([])
     const [filterForMe, setFilterForMe] = useState(Filters.SHOW_ALL)
     const history = useHistory()
 
@@ -26,6 +28,7 @@ const Home = () => {
     useEffect(() => {
       const intervalID = setInterval(() => {
         getPosts()
+        getUsers()
       }, 2000)
       const controller = new AbortController()
       controller.abort()
@@ -49,6 +52,15 @@ const Home = () => {
             setPostsList(response.data)
         });
     }
+
+    const getUsers = async () => {
+        await axios({
+          method: 'get',
+          url: '/account/users',
+        }).then(response => {
+          setUsers(response.data)
+        })
+      }
     
     const addPost = async (task, amount, sendFrom, sendTo) => {
         try {
@@ -79,6 +91,7 @@ const Home = () => {
     const logout = async () => {
       try {
           await axios.post('/account/logout', { username: author })
+          setModalUserActive(false)
           goHome()
       }
       catch (err) {
@@ -120,6 +133,22 @@ const Home = () => {
                 <br></br>
                 <button type="button" className="btn btn-link" onClick={logout}>Logout</button>
                 <br></br>
+                {!modalUserActive
+                && (
+                    <button type="button" style={{ marginLeft: '5px'}} className="btn btn-link" onClick={() => setModalUserActive(true)}>Show Users</button>
+                )}
+                {modalUserActive
+                && (
+                    <div>
+                        <button type="button" style={{ marginLeft: '5px'}} className="btn btn-link" onClick={() => setModalUserActive(false)}>Hide Users</button>
+                        <div>
+                            { users.map(u => (
+                                <p className="mb-0">{u.username}</p>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                <br></br>
                 <button type="button" className="btn btn-info" onClick={modalAppear}>Make Request</button>
                 <br></br>
                 </center>
@@ -134,15 +163,15 @@ const Home = () => {
                         <div className="card" style={{ width: '15rem' }}> 
                             <div class="card-body">
                                 <div className="post-title" style={{ size: '30pt', color: 'black', fontWeight: 'bold' }}>
-                                    Request
+                                    Request User
                                 </div>
-                                <input className="form-control" onChange={e => setSendTo(e.target.value)} placeholder="Username"></input>
+                                <input className="form-control" onChange={e => setSendTo(e.target.value)} placeholder="User"></input>
                                 
                                 <input className="form-control" onChange={e => setPost(e.target.value)} placeholder="What's it for?"></input>
                                 <input className="form-control" onChange={e => setMoney(e.target.value)} placeholder="$0"></input>
                                 <br></br>
                                 <button type="button" style={{ marginLeft: '5px'}} className="btn btn-info" 
-                                    disabled={post.trim().length === 0 || money.trim().length === 0 || sendTo.trim().length === 0 || isNaN(money.trim())} 
+                                    disabled={post.trim().length === 0 || money.trim().length === 0 || sendTo.trim().length === 0 || sendTo.trim() === author || isNaN(money.trim())} 
                                     onClick={() => addPost(post, money, author, sendTo)}>Submit</button>
                                 <button type="button" style={{ marginLeft: '5px'}} className="btn btn-warning" onClick={() => setModalActive(false)}>Cancel</button>
                                 <br/>
@@ -228,8 +257,26 @@ const Home = () => {
             <div className="container">
                 <br></br>
                 <center><h1> <b>CashCow</b></h1>
-                Welcome Roomie! <Link to="/login">Log in </Link>to view tasks.
+                Welcome! <Link to="/login">Log in </Link>to view payments feed.
                 <br></br>
+                <br></br>
+                Who else is using CashCow?
+                <br></br>
+                {!modalUserActive
+                && (
+                    <button type="button" style={{ marginLeft: '5px'}} className="btn btn-link" onClick={() => setModalUserActive(true)}>Show Users</button>
+                )}
+                {modalUserActive
+                && (
+                    <div>
+                        <button type="button" style={{ marginLeft: '5px'}} className="btn btn-link" onClick={() => setModalUserActive(false)}>Hide Users</button>
+                        <div>
+                            { users.map(u => (
+                                <p className="mb-0">{u.username}</p>
+                            ))}
+                        </div>
+                    </div>
+                )}
                 <br></br>
                 
                 <Switch>

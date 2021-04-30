@@ -35687,12 +35687,15 @@ const Home = () => {
   const [sendTo, setSendTo] = (0, _react.useState)('');
   const [author, setAuthor] = (0, _react.useState)('');
   const [modalActive, setModalActive] = (0, _react.useState)(false);
+  const [modalUserActive, setModalUserActive] = (0, _react.useState)(false);
   const [postsList, setPostsList] = (0, _react.useState)([]);
+  const [users, setUsers] = (0, _react.useState)([]);
   const [filterForMe, setFilterForMe] = (0, _react.useState)(_actions.Filters.SHOW_ALL);
   const history = (0, _reactRouterDom.useHistory)();
   (0, _react.useEffect)(() => {
     const intervalID = setInterval(() => {
       getPosts();
+      getUsers();
     }, 2000);
     const controller = new AbortController();
     controller.abort(); // return a clean-up function so that the repetition can be stopped
@@ -35713,6 +35716,15 @@ const Home = () => {
       url: '/api/posts'
     }).then(response => {
       setPostsList(response.data);
+    });
+  };
+
+  const getUsers = async () => {
+    await (0, _axios.default)({
+      method: 'get',
+      url: '/account/users'
+    }).then(response => {
+      setUsers(response.data);
     });
   };
 
@@ -35755,6 +35767,7 @@ const Home = () => {
       await _axios.default.post('/account/logout', {
         username: author
       });
+      setModalUserActive(false);
       goHome();
     } catch (err) {
       window.alert(`error occured while logging out: ${err.response.data}`);
@@ -35801,7 +35814,23 @@ const Home = () => {
       type: "button",
       className: "btn btn-link",
       onClick: logout
-    }, "Logout"), /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("button", {
+    }, "Logout"), /*#__PURE__*/_react.default.createElement("br", null), !modalUserActive && /*#__PURE__*/_react.default.createElement("button", {
+      type: "button",
+      style: {
+        marginLeft: '5px'
+      },
+      className: "btn btn-link",
+      onClick: () => setModalUserActive(true)
+    }, "Show Users"), modalUserActive && /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("button", {
+      type: "button",
+      style: {
+        marginLeft: '5px'
+      },
+      className: "btn btn-link",
+      onClick: () => setModalUserActive(false)
+    }, "Hide Users"), /*#__PURE__*/_react.default.createElement("div", null, users.map(u => /*#__PURE__*/_react.default.createElement("p", {
+      className: "mb-0"
+    }, u.username)))), /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("button", {
       type: "button",
       className: "btn btn-info",
       onClick: modalAppear
@@ -35821,10 +35850,10 @@ const Home = () => {
         color: 'black',
         fontWeight: 'bold'
       }
-    }, "Request"), /*#__PURE__*/_react.default.createElement("input", {
+    }, "Request User"), /*#__PURE__*/_react.default.createElement("input", {
       className: "form-control",
       onChange: e => setSendTo(e.target.value),
-      placeholder: "Username"
+      placeholder: "User"
     }), /*#__PURE__*/_react.default.createElement("input", {
       className: "form-control",
       onChange: e => setPost(e.target.value),
@@ -35839,7 +35868,7 @@ const Home = () => {
         marginLeft: '5px'
       },
       className: "btn btn-info",
-      disabled: post.trim().length === 0 || money.trim().length === 0 || sendTo.trim().length === 0 || isNaN(money.trim()),
+      disabled: post.trim().length === 0 || money.trim().length === 0 || sendTo.trim().length === 0 || sendTo.trim() === author || isNaN(money.trim()),
       onClick: () => addPost(post, money, author, sendTo)
     }, "Submit"), /*#__PURE__*/_react.default.createElement("button", {
       type: "button",
@@ -35885,9 +35914,25 @@ const Home = () => {
 
   return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement("div", {
     className: "container"
-  }, /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("h1", null, " ", /*#__PURE__*/_react.default.createElement("b", null, "CashCow")), "Welcome Roomie! ", /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
+  }, /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("center", null, /*#__PURE__*/_react.default.createElement("h1", null, " ", /*#__PURE__*/_react.default.createElement("b", null, "CashCow")), "Welcome! ", /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
     to: "/login"
-  }, "Log in "), "to view tasks.", /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Switch, null, /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
+  }, "Log in "), "to view payments feed.", /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement("br", null), "Who else is using CashCow?", /*#__PURE__*/_react.default.createElement("br", null), !modalUserActive && /*#__PURE__*/_react.default.createElement("button", {
+    type: "button",
+    style: {
+      marginLeft: '5px'
+    },
+    className: "btn btn-link",
+    onClick: () => setModalUserActive(true)
+  }, "Show Users"), modalUserActive && /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("button", {
+    type: "button",
+    style: {
+      marginLeft: '5px'
+    },
+    className: "btn btn-link",
+    onClick: () => setModalUserActive(false)
+  }, "Hide Users"), /*#__PURE__*/_react.default.createElement("div", null, users.map(u => /*#__PURE__*/_react.default.createElement("p", {
+    className: "mb-0"
+  }, u.username)))), /*#__PURE__*/_react.default.createElement("br", null), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Switch, null, /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
     path: "/login"
   }, /*#__PURE__*/_react.default.createElement(_Login.default, null))))));
 };
@@ -35973,7 +36018,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55967" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60085" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

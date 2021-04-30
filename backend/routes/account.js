@@ -1,13 +1,22 @@
 const express = require('express')
-
 const User = require('../models/user')
-const { isAuthenticated } = require('../middlewares/isAuthenticated')
 const router = express.Router()
-
+const passport = require('../passport/setup')
 
 
 router.post('/', (req, res) => {
   res.send(req.session.username)
+})
+
+
+router.get('/users', (req, res) => {
+  User.find({}, async (err, result) => {
+    if (err) {
+      next(err)
+    } else {
+      res.send(result)
+    }
+  })
 })
 
 router.post('/signup', async (req, res) => {
@@ -20,6 +29,7 @@ router.post('/signup', async (req, res) => {
       }
   })
 
+ 
 router.post('/login', (req, res, next) => {
   const { username, password } = req.body
    User.findOne({ username, password }, (err, user) => {
@@ -29,13 +39,29 @@ router.post('/login', (req, res, next) => {
     if (user) {
       req.session.username = username
       req.session.password = password
-      console.log(`logged in as ${username}`)
       res.send(`logged in as ${username}`)
     } else {
       return next(new Error('user does not exist'))
     }
   })
 })
+
+//tried passport
+/**
+router.post('/login', (req, res, next) => {
+  passport.authenticate('local', (err, user) => {
+    if (err) {
+      console.log(err)
+      next(err)
+    } else {
+      console.log('asdf')
+      req.session = user.username
+      req.session = user.password
+      res.send('logged in')
+    }
+  })
+})
+ */
 
 router.post('/logout', (req, res) => {
     const user = req.session.username
